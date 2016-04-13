@@ -87,6 +87,28 @@ describe('createActionFactory', function() {
           expect(instantLogger.bind(null, {foo: "this was required!", bar: "this was optional!"})).not.to.throw();
         });
       });
+
+      describe("it returns an action", () => {
+        var action = instantLogger({foo: "hello", bar: "world", baz: "not in spec!"});
+
+        it("with a bound type", () => {
+          expect(action.type).to.equal("MY_TYPE");
+        });
+
+        describe(".payload", () => {
+          it("has a value for foo", () => {
+            expect(action.payload.foo).to.equal("hello");
+          });
+
+          it("has a value for bar", () => {
+            expect(action.payload.bar).to.equal("world");
+          });
+
+          it('has no value for baz, which was not specified in the action creator configuration', () => {
+            expect(action.payload.baz).to.equal(undefined);
+          });
+        });
+      })
     });
   });
 
