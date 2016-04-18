@@ -1,6 +1,6 @@
 {
   "name": "hyperspanner",
-  "version": "1.0.0",
+  "version": "0.0.6",
   "description": "A tool for tracking events over spans of time.",
   "main": "src/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "sinon": "^1.17.3"
   },
   "dependencies": {
+    "action-hero": "^1.2.0",
     "clone": "^1.0.2"
   }
 }
