@@ -3,7 +3,6 @@ module.exports = {
   createStore: require("./createStore")
 };
 
-
 var store = createStore();
 
 var weightLogger = createActionFactory.instant("WEIGHT", {args: ["weight"]});

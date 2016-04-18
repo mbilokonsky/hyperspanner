@@ -17,8 +17,6 @@ function parsePayload(details, expectedArgs) {
       argName = argName.substr(0, argName.length - 1); // remove the question mark.
       payload[argName] = details[argName];
     }
-
-
   });
 
   if (missingArgs.length > 0) {
@@ -36,6 +34,10 @@ function validateType(type) {
 
 function validateArgumentNames(argNames) {
   return argNames.every(function(argName) {
+    if (!util.isString(argName)) {
+      throw new TypeError('argument names must be strings that adhere to proper naming rules.');
+    }
+
     return util.isString(argName) &&
       argName.indexOf(" ") === -1 &&
       argName.indexOf("$") !== 0 &&
@@ -43,12 +45,51 @@ function validateArgumentNames(argNames) {
   });
 }
 
-function validateInstantConf(conf) {
-  return validateArgumentNames(conf.args);
+function validateInstantConf(config) {
+  return validateArgumentNames(config.args);
 }
 
 function validateTemporalConf(conf) {
-  return validateArgumentNames(conf.startArgs.concat(conf.stopArgs).push(conf.key));
+  if (!conf) {
+    throw new TypeError('Temporal action factories require a config parameter.');
+  }
+
+  if (!util.isObject(conf)) {
+    throw new TypeError('Config must be an object.');
+  }
+
+  if (!util.isString(conf.key)) {
+    throw new Error('config.key must be a string.');
+  }
+
+  if (!conf.startArgs) {
+    throw new TypeError("Must provide arguments for start function.")
+  }
+
+  if (!util.isArray(conf.startArgs)) {
+    throw new TypeError("startArgs must be an array.");
+    }
+
+  if (!conf.stopArgs) {
+    throw new TypeError("Must provide arguments for stop function.")
+  }
+
+  if (!util.isArray(conf.stopArgs)) {
+    throw new TypeError("stopArgs must be an array.");
+  }
+
+  if (conf.startArgs.indexOf(conf.key) > -1) {
+    throw new TypeError("do not include your key name in your start args.");
+  }
+
+  if (conf.stopArgs.indexOf(conf.key) > -1) {
+    throw new TypeError("do not include your key name in your stop args.");
+  }
+
+  var allArgumentNames = conf.startArgs.concat(conf.stopArgs);
+  allArgumentNames.push(conf.key);
+
+  return validateArgumentNames(allArgumentNames);
 }
 
 module.exports = {
@@ -97,12 +138,26 @@ module.exports = {
 
     return {
       start: function(key, details) {
+        if (conf.startArgs.length > 0) {
+          if (!details) {
+            throw new TypeError('start details must be provided.');
+          }
+        }
+
         var payload = parsePayload(details, conf.startArgs);
-        payload.$key = key;
+        payload[conf.key] = key;  // this way, payload.title will be the title
+        payload.$key = key;       // and payload.key will be the title.
         return action_creator(payload);
       },
       stop: function(key, details) {
-        var payload = parsePayload(details, conf.startArgs);
+        if (conf.startArgs.length > 0) {
+          if (!details) {
+            throw new TypeError('stop details must be provided.');
+          }
+        }
+
+        var payload = parsePayload(details, conf.stopArgs);
+        payload[conf.key] = key;
         payload.$key = key;
         return action_creator(payload);
       }
