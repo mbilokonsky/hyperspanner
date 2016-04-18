@@ -226,8 +226,8 @@ describe('createActionFactory', function() {
         describe('output', () => {
           var action = temporalObject.start("Moby Dick", {author: "Herman Melville"});
 
-          it("preserves action type", () => {
-              expect(action.type).to.equal("READ_BOOK");
+          it("prpends 'START_' to action type", () => {
+              expect(action.type).to.equal("START_READ_BOOK");
           });
 
           it("sets a timestamp", () => {
@@ -266,8 +266,8 @@ describe('createActionFactory', function() {
         describe('output', () => {
           var action = temporalObject.stop("Moby Dick", {rating: 5, thoughts: "It was very long."});
 
-          it("preserves action type", () => {
-              expect(action.type).to.equal("READ_BOOK");
+          it("prepends 'STOP_' to action type", () => {
+              expect(action.type).to.equal("STOP_READ_BOOK");
           });
 
           it("sets a timestamp", () => {

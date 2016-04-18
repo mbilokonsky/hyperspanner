@@ -134,10 +134,10 @@ module.exports = {
       throw new TypeError("Your argument names contain illegal characters. Never start with $, do not include spaces and if you include '?' it must be as the final character, used to denote an optional argument.");
     };
 
-    var action_creator = actionHero.createActionCreator(type);
-
     return {
       start: function(key, details) {
+        var action_creator = actionHero.createActionCreator("START_" + type);
+
         if (conf.startArgs.length > 0) {
           if (!details) {
             throw new TypeError('start details must be provided.');
@@ -150,6 +150,8 @@ module.exports = {
         return action_creator(payload);
       },
       stop: function(key, details) {
+        var action_creator = actionHero.createActionCreator("STOP_" + type);
+
         if (conf.startArgs.length > 0) {
           if (!details) {
             throw new TypeError('stop details must be provided.');

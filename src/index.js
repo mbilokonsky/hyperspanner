@@ -1,23 +1,24 @@
 module.exports = {
   createActionFactory: require("./createActionFactory"),
-  createStore: require("./createStore")
+  createEphemeralStore: require("./createEphemeralStore")
 };
 
-var store = createStore();
+var hs = require("hyperspanner");
+var store = hs.createEphemeralStore();
 
-var weightLogger = createActionFactory.instant("WEIGHT", {args: ["weight"]});
+var weightLogger = hs.createActionFactory.instant("WEIGHT", {args: ["weight"]});
 var weightAction = weightLogger({weight:220});
-store.dispatch(weightAction);
+store.put(weightAction);
 
-var readerActionFactory = createActionFactory.temporal("READING", {key: "title", startArgs: ["title"], stopArgs: ["title", "completed", "rating?", "thoughts?"]});
-var startReading = readerActionFactory.start("Moby Dick");
-store.dispatch(startReading);
+var readerActionFactory = hs.createActionFactory.temporal("READING", {key: "title", startArgs: ["author"], stopArgs: ["completed", "rating?", "thoughts?"]});
+var startReading = readerActionFactory.start("Moby Dick", {author: "Herman Melville"});
+store.put(startReading);
 
 /// time passes
 var finishedReading = readerActionFactory.stop("Moby Dick", {completed: true, rating: 5, thoughts: "It made me sad for the whale, but ultimately hopeful that humanity will one day destroy itself."});
-store.dispatch(finishedReading);
+store.put(finishedReading);
 
-store.getLog();
+store.get();
 /*
 [
   {
